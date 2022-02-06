@@ -3,7 +3,7 @@ import pygame
 from pygame.constants import MOUSEBUTTONDOWN
 from pygame.time import Clock
 
-from src.branch import Branch
+from src.branch import Tree
 
 TIME_SUS = 2
 MAX_DEPTH = 15
@@ -18,11 +18,13 @@ window = pygame.display.set_mode(SIZE,pygame.RESIZABLE)
 pygame.display.set_caption('test')
 clock = Clock()
 
-b = Branch(start = pygame.Vector2(WIDTH//2,HEIGHT*4/5), r = 200, rmult=0.8, anglemod=30/180*math.pi, max_depth=MAX_DEPTH) 
+b = Tree(r = 200,rotation=0, rmult=0.8, anglemod=30/180*math.pi, max_depth=MAX_DEPTH) 
 b.generate()
 
 def main():
     
+    tree_pos = pygame.Vector2(WIDTH//2,HEIGHT*4/5)
+
     time = TIME_SUS
     depth = 0
     depth_dir = 1
@@ -53,7 +55,7 @@ def main():
 
 
         
-        b.show(window,depth)    
+        b.show(window,tree_pos,depth)    
 
         pygame.display.update()
 
