@@ -124,16 +124,8 @@ class Branch:
         h = abs(t-b)
 
         return (l,t,w,h)
-
-    def get_sium(self):
-        l = self.__get_left()
-        r = self.__get_right()
-        t = self.__get_top()
-        b = self.__get_bottom()
-        
         
 
-        return (l,r,t,b)
 
     def get_rect(self, pos):
         l,t,w,h = self.get_size()
