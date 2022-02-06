@@ -37,16 +37,19 @@ class Branch:
         else:
             pygame.draw.line(window,(255,255,255), self.parent.end+Vector2(pos), self.end+Vector2(pos))
 
-    def generate(self):
+    def __update(self):
         self.end = self.calculate_end()
+        if self.parent != None:
+            self.start = self.parent.end
+
+    def generate(self):
+        self.__update()
         if self.depth < self.max_depth:
             self.add_child(self)
         
         if self.right is not None:
-            self.right.end = self.right.calculate_end()
             self.right.generate()
         if self.left is not None:
-            self.left.end = self.left.calculate_end()
             self.left.generate()
 
     def calculate_end(self):
@@ -58,11 +61,84 @@ class Branch:
 
     def add_child(self, new_b):
         if self.right is None:
-            self.right = Branch(parent=new_b, r = self.r * self.rmult, depth= self.depth + 1, angle=self.angle + self.anglemod, rmult = self.rmult, anglemod =self.anglemod, max_depth=self.max_depth)
+            self.right = Branch(start=self.end,parent=new_b, r = self.r * self.rmult, depth= self.depth + 1, angle=self.angle + self.anglemod, rmult = self.rmult, anglemod =self.anglemod, max_depth=self.max_depth)
 
         if self.left is None:
-            self.left = Branch(parent=new_b, r = self.r * self.rmult, depth = self.depth + 1, angle=self.angle - self.anglemod, rmult = self.rmult, anglemod =self.anglemod, max_depth=self.max_depth)
+            self.left = Branch(start=self.end,parent=new_b, r = self.r * self.rmult, depth = self.depth + 1, angle=self.angle - self.anglemod, rmult = self.rmult, anglemod =self.anglemod, max_depth=self.max_depth)
 
+    def rotate(self, angle):
+        self.angle += angle
+        self.__update()
+        if self.right is not None:
+            self.right.rotate(angle)
+        if self.left is not None:
+            self.left.rotate(angle)
+    
+    
+
+    def __get_left(self):
+        if self.left == None and self.right == None:
+            return min(self.start.x, self.end.x)
+        if self.left == None:
+            return min(self.start.x, self.end.x, self.right.__get_left())
+        if self.right == None:
+            return min(self.start.x, self.end.x, self.left.__get_left())
+        return min(self.start.x, self.end.x,self.right.__get_left(), self.left.__get_left())
+
+    def __get_right(self):
+        if self.left == None and self.right == None:
+            return max(self.start.x, self.end.x)
+        if self.left == None:
+            return max(self.start.x, self.end.x, self.right.__get_right())
+        if self.right == None:
+            return max(self.start.x, self.end.x, self.left.__get_right())
+        return max(self.start.x, self.end.x,self.right.__get_right(), self.left.__get_right())
+
+    def __get_top(self):
+        if self.left == None and self.right == None:
+            return min(self.start.y, self.end.y)
+        if self.left == None:
+            return min(self.start.y, self.end.y, self.right.__get_top())
+        if self.right == None:
+            return min(self.start.y, self.end.y, self.left.__get_top())
+        return min(self.start.y, self.end.y,self.right.__get_top(), self.left.__get_top())
+
+    def __get_bottom(self):
+        if self.left == None and self.right == None:
+            return max(self.start.y, self.end.y)
+        if self.left == None:
+            return max(self.start.y, self.end.y, self.right.__get_bottom())
+        if self.right == None:
+            return max(self.start.y, self.end.y, self.left.__get_bottom())
+        return max(self.start.y, self.end.y,self.right.__get_bottom(), self.left.__get_bottom())
+
+    def get_size(self):
+        l = self.__get_left()
+        r = self.__get_right()
+        t = self.__get_top()
+        b = self.__get_bottom()
+        
+        w = abs(l-r)
+        h = abs(t-b)
+
+        return (l,t,w,h)
+
+    def get_sium(self):
+        l = self.__get_left()
+        r = self.__get_right()
+        t = self.__get_top()
+        b = self.__get_bottom()
+        
+        
+
+        return (l,r,t,b)
+
+    def get_rect(self, pos):
+        l,t,w,h = self.get_size()
+        l += pos[0]
+        t += pos[1]
+
+        return pygame.Rect(l,t,w,h)
             
 
 class Tree(Branch):
