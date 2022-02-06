@@ -3,7 +3,7 @@ from hashlib import new
 from math import dist, radians
 import math
 from tkinter.messagebox import NO
-from numpy import mat, vectorize
+from numpy import angle, mat, vectorize
 from pygame import Vector2
 import pygame
 
@@ -63,10 +63,10 @@ class Branch:
 
     def add_child(self, new_b):
         if self.right is None:
-            self.right = Branch(start=self.end,parent=new_b, r = self.r * self.rmult, depth= self.depth + 1, angle=self.angle + self.anglemod, rmult = self.rmult, anglemod =self.anglemod, max_depth=self.max_depth)
+            self.right = Branch(start=self.end,parent=new_b, r = self.r * self.rmult, depth= self.depth + 1, angle=self.angle - self.anglemod, rmult = self.rmult, anglemod =self.anglemod, max_depth=self.max_depth)
 
         if self.left is None:
-            self.left = Branch(start=self.end,parent=new_b, r = self.r * self.rmult, depth = self.depth + 1, angle=self.angle - self.anglemod, rmult = self.rmult, anglemod =self.anglemod, max_depth=self.max_depth)
+            self.left = Branch(start=self.end,parent=new_b, r = self.r * self.rmult, depth = self.depth + 1, angle=self.angle + self.anglemod, rmult = self.rmult, anglemod =self.anglemod, max_depth=self.max_depth)
 
     def rotate(self, angle):
         self.angle += angle
@@ -158,6 +158,15 @@ class Branch:
 
     def change_radius_multiplier(self, new_rmult):
         self.__update_radius(self.r, new_rmult)
+
+    def change_angle_modifier(self, new_anglemod):
+        self.anglemod = new_anglemod
+        if self.right is not None:
+            self.right.angle = self.angle+new_anglemod
+            self.right.change_angle_modifier(new_anglemod)
+        if self.left is not None:
+            self.left.angle = self.angle-new_anglemod
+            self.left.change_angle_modifier(new_anglemod)
 
 
 class Tree(Branch):
