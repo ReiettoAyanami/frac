@@ -61,6 +61,7 @@ def main():
         box = b.get_rect(tree_pos)
         
         pygame.draw.rect(window, (255,255,255), box,1)
+        #b.change_radius_multiplier(0.5)
         
 
         pygame.display.update()

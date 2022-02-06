@@ -1,3 +1,5 @@
+from distutils.util import change_root
+from hashlib import new
 from math import dist, radians
 import math
 from tkinter.messagebox import NO
@@ -37,13 +39,13 @@ class Branch:
         else:
             pygame.draw.line(window,(255,255,255), self.parent.end+Vector2(pos), self.end+Vector2(pos))
 
-    def __update(self):
+    def update(self):
         self.end = self.calculate_end()
         if self.parent != None:
             self.start = self.parent.end
 
     def generate(self):
-        self.__update()
+        self.update()
         if self.depth < self.max_depth:
             self.add_child(self)
         
@@ -68,7 +70,7 @@ class Branch:
 
     def rotate(self, angle):
         self.angle += angle
-        self.__update()
+        self.update()
         if self.right is not None:
             self.right.rotate(angle)
         if self.left is not None:
@@ -141,6 +143,23 @@ class Branch:
         return pygame.Rect(l,t,w,h)
             
 
+    def __update_radius(self, new_r, new_rmult, depth=0):
+        self.r = new_r*(new_rmult**depth)
+        self.update()
+
+        if self.right is not None:
+            self.right.__update_radius(new_r,new_rmult,depth+1)
+
+        if self.left is not None:
+            self.left.__update_radius(new_r,new_rmult,depth+1)
+
+    def change_radius(self, new_r):
+        self.__update_radius(new_r, self.rmult)
+
+    def change_radius_multiplier(self, new_rmult):
+        self.__update_radius(self.r, new_rmult)
+
+
 class Tree(Branch):
     def __init__(self, r=10, rotation=0, rmult=0.5, anglemod=math.pi / 4, max_depth=15) -> None:
 
@@ -148,3 +167,4 @@ class Tree(Branch):
         super().__init__(Vector2(0,0), r, None, 0, angle, rmult, anglemod, max_depth)
 
     
+
